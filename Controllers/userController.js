@@ -1,4 +1,4 @@
-const { create } = require('../Models/userModel')
+const { AppError } = require('../ErrorHandler/custom-api')
 const User = require('../Models/userModel')
 
 const getAllUsers = async (req, res) => {
@@ -10,10 +10,17 @@ const getAllUsers = async (req, res) => {
     users,
   })
 }
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   const userId = req.params.id
 
   const user = await User.findById(userId)
+
+  if (!user) {
+    return next(AppError('User not found', 404))
+    res.status(404).json({
+      message: 'user not found',
+    })
+  }
 
   res.status(200).json({
     status: 'success',
@@ -22,6 +29,10 @@ const getUser = async (req, res) => {
 }
 const createUser = async (req, res) => {
   const { username, email, password } = req.body
+
+  if (!username || !email || !password) {
+    return next(AppError('All fields are required', 400))
+  }
 
   const user = await User.create({ username, email, password })
 
