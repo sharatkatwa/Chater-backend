@@ -44,7 +44,28 @@ const login = async (req, res, next) => {
   // if everything is good create and send the cookie
   createSendToken(user, 200, req, res)
 }
-const logout = async (req, res) => {}
-const register = async (req, res) => {}
+const register = async (req, res, next) => {
+  const { username, email, password, confirmPassword } = req.body
+  if (!username || !email || !password || !confirmPassword) {
+    return next(AppError('Some fields are missing please fill all fields', 400))
+  }
+  if (password !== confirmPassword) {
+    return next(AppError('password and confirm password must be same!', 400))
+  }
+  const user = await User.create({ username, email, password })
+
+  res.status(201).json({
+    status: 'success',
+    message: 'User created successfully! Now you can login',
+    user,
+  })
+}
+const logout = async (req, res) => {
+  res.cookie('jwt', 'LoggedOut', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  })
+  res.status(200).json({ status: 'success', message: 'LoggedOut' })
+}
 
 module.exports = { login, logout, register }

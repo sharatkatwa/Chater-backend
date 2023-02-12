@@ -16,10 +16,21 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
     },
+    role: {
+      type: String,
+      enum: ['user', 'dev', 'admin'],
+      default: 'user',
+    },
     password: {
       type: String,
       require: [true, 'Please provide your password'],
       minLength: [8, 'Password must contain atleast eight charecters'],
+      select: false,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
     },
   },
   { timestamps: true }
